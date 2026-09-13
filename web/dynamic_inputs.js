@@ -847,8 +847,55 @@ function setupLoadImageListLocalization(node) {
             }
         }
     }
+    if (ensureLoadImageListInitButton(node)) {
+        changed = true;
+    }
     if (changed) {
         node.setDirtyCanvas(true, true);
+    }
+    return changed;
+}
+
+function ensureLoadImageListInitButton(node) {
+    if (!isLingzhiLoadImageListNode(node) || !Array.isArray(node.widgets)) return false;
+    const initValueWidget = findWidgetByNames(node, ["初始化"]);
+    if (!initValueWidget || typeof node.addWidget !== "function") return false;
+
+    let changed = false;
+    if (setWidgetHiddenState(initValueWidget, true)) {
+        changed = true;
+    }
+    initValueWidget.serialize = true;
+
+    let button = node.widgets.find((widget) => widget?.name === "⟳ 初始化" || widget?.label === "⟳ 初始化");
+    if (!button) {
+        button = node.addWidget("button", "⟳ 初始化", "", () => {
+            const currentValue = Number(initValueWidget.value) || 0;
+            initValueWidget.value = currentValue >= 0xFFFFFFFFFFFFFFFF ? 0 : currentValue + 1;
+            if (typeof initValueWidget.callback === "function") {
+                initValueWidget.callback(initValueWidget.value);
+            }
+            node.setDirtyCanvas?.(true, true);
+        });
+        button.name = "⟳ 初始化";
+        button.label = "⟳ 初始化";
+        button.tooltip = "递增初始化标记，重新扫描目录中的图像";
+        button.serialize = false;
+        changed = true;
+    } else {
+        if (button.label !== "⟳ 初始化") {
+            button.label = "⟳ 初始化";
+            changed = true;
+        }
+        button.tooltip = "递增初始化标记，重新扫描目录中的图像";
+        button.serialize = false;
+    }
+    const initIndex = node.widgets.indexOf(initValueWidget);
+    const buttonIndex = node.widgets.indexOf(button);
+    if (initIndex >= 0 && buttonIndex !== initIndex + 1) {
+        node.widgets.splice(buttonIndex, 1);
+        node.widgets.splice(initIndex + 1, 0, button);
+        changed = true;
     }
     return changed;
 }
