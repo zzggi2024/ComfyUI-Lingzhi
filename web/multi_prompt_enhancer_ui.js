@@ -15,6 +15,7 @@ import {
 } from "./multi_prompt_enhancer_policy.mjs";
 
 const NODE_CLASS = "Lingzhi_Multi_Prompt_Enhancer";
+const NODE_CLASS_ALIASES = new Set([NODE_CLASS, `LZ-${NODE_CLASS}`]);
 const DISPLAY_NAME = "✨ 多模型提示词增强器";
 const MODEL_ENDPOINT = "/lingzhi/multi_prompt_enhancer/models";
 const MODEL_WIDGET = "模型选择";
@@ -25,6 +26,11 @@ const FETCH_MODELS_WIDGET = "获取模型列表";
 const MODEL_LIST_WIDGET = "可用模型列表";
 const MODEL_STATUS_WIDGET = "模型获取状态";
 const WARNING_SUFFIX = "（当前不参与）";
+
+function isMultiPromptEnhancerNode(node) {
+  const nodeType = String(node?.comfyClass || node?.type || "");
+  return NODE_CLASS_ALIASES.has(nodeType);
+}
 
 function findWidget(node, name) {
   return Array.isArray(node?.widgets)
@@ -341,7 +347,7 @@ function schedulePolicy(node, options = {}) {
 app.registerExtension({
   name: "Lingzhi.MultiPromptEnhancerUI",
   async beforeRegisterNodeDef(nodeType, nodeData) {
-    if (nodeData?.name !== NODE_CLASS) return;
+    if (!NODE_CLASS_ALIASES.has(nodeData?.name)) return;
 
     const onNodeCreated = nodeType.prototype.onNodeCreated;
     nodeType.prototype.onNodeCreated = function () {
@@ -373,9 +379,9 @@ app.registerExtension({
     };
   },
   nodeCreated(node) {
-    if (node?.comfyClass === NODE_CLASS || node?.type === NODE_CLASS) initializeNode(node, { conservative: true });
+    if (isMultiPromptEnhancerNode(node)) initializeNode(node, { conservative: true });
   },
   loadedGraphNode(node) {
-    if (node?.comfyClass === NODE_CLASS || node?.type === NODE_CLASS) schedulePolicy(node);
+    if (isMultiPromptEnhancerNode(node)) schedulePolicy(node);
   },
 });
