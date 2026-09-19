@@ -87,7 +87,8 @@ export function skillControlsVisible(feature) {
 export function normalizedSeedValue(value) {
   if (value === null || value === undefined || value === "") return 0;
   const numeric = Number(value);
-  return Number.isFinite(numeric) && numeric >= 0 ? numeric : 0;
+  if (!Number.isFinite(numeric) || numeric < 0) return 0;
+  return Math.trunc(numeric) >>> 0;
 }
 
 export function orderedWidgetNames(names) {
