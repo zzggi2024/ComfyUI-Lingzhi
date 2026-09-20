@@ -39,6 +39,7 @@ const API_WIDGET = "打开API申请地址";
 const WARNING_SUFFIX = "（当前不参与）";
 const PANEL_CALLBACK_WIDGETS = new Set([
   FEATURE_WIDGET,
+  CHANNEL_WIDGET,
   "生成模式",
   "歌词模式",
   "歌曲结构",
@@ -367,6 +368,21 @@ function updateModelOptions(node, models) {
   if (!options.includes(current)) setModelLocked(node, false);
 }
 
+function clearModelListOptions(node, { resetSelection = false } = {}) {
+  const list = findWidget(node, MODEL_LIST_WIDGET);
+  if (list) {
+    list.options = list.options || {};
+    list.options.values = [];
+    list.value = "";
+  }
+  node.__lingzhiMultiFunctionModelListLoaded = false;
+  if (resetSelection) {
+    const model = findWidget(node, MODEL_WIDGET);
+    if (model) updateCombo(model, ["智能选择"], "智能选择");
+    setModelLocked(node, false);
+  }
+}
+
 function updateModelListOptions(node, models) {
   const widget = findWidget(node, MODEL_LIST_WIDGET);
   if (!widget) return;
@@ -441,6 +457,7 @@ function getWidgetOrLinkedValue(node, inputName) {
 }
 
 async function refreshModels(node) {
+  node.__lingzhiMultiFunctionModelInitialized = true;
   const apiKey = getWidgetOrLinkedValue(node, "API密钥");
   const channel = String(findWidget(node, CHANNEL_WIDGET)?.value || "自动");
   setModelRefreshStatus(node, "正在获取模型列表...");
@@ -481,6 +498,10 @@ function installCallbacks(node) {
       if (widget.name === MODEL_WIDGET) {
         setModelLocked(node, String(value || "") !== "智能选择");
       }
+      if (widget.name === CHANNEL_WIDGET) {
+        clearModelListOptions(node, { resetSelection: true });
+        void refreshModels(node);
+      }
       if (PANEL_CALLBACK_WIDGETS.has(widget.name)) applyNodePolicy(node);
       return result;
     };
@@ -492,10 +513,23 @@ function initialize(node, { conservative = false } = {}) {
   restoreModelLock(node);
   applyNodePolicy(node, { conservative });
   installCallbacks(node);
+  scheduleInitialModelRefresh(node);
 }
 
 function scheduleInitialize(node, options = {}) {
   setTimeout(() => initialize(node, options), 0);
+}
+
+function scheduleInitialModelRefresh(node) {
+  if (node.__lingzhiMultiFunctionModelInitialized) return;
+  if (node.__lingzhiMultiFunctionModelInitTimer) {
+    clearTimeout(node.__lingzhiMultiFunctionModelInitTimer);
+  }
+  node.__lingzhiMultiFunctionModelInitTimer = setTimeout(() => {
+    delete node.__lingzhiMultiFunctionModelInitTimer;
+    if (node.__lingzhiMultiFunctionModelInitialized) return;
+    void refreshModels(node);
+  }, 50);
 }
 
 app.registerExtension({
