@@ -1,13 +1,14 @@
-export const H3_FAST_R2V_MODEL = "minimax-h3-ow-r2v-fast";
+export const H3_FAST_R2V_MODEL = "LZ-minimax-h3-ow-r2v-fast";
 export const H3_AUDIO_MODELS = new Set([
-    "minimax-h3-ow-fl2va-audio-drive-fast",
-    "minimax-h3-ow-ref2va-audio-drive-fast",
+    "LZ-minimax-h3-ow-fl2va-audio-drive-fast",
+    "LZ-minimax-h3-ow-ref2va-audio-drive-fast",
 ]);
 
 export function getH3InputPolicy(model) {
+    const modelName = String(model || "").trim();
     return {
-        imageCount: model === H3_FAST_R2V_MODEL ? 9 : 1,
-        usesAudio: H3_AUDIO_MODELS.has(model),
+        imageCount: modelName === H3_FAST_R2V_MODEL ? 9 : 1,
+        usesAudio: H3_AUDIO_MODELS.has(modelName),
     };
 }
 

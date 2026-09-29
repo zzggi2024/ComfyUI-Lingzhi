@@ -307,11 +307,6 @@ function setSkillRefreshStatus(node, message) {
   node.__lingzhiMultiFunctionSkillStatusVisible = Boolean(widget.value);
 }
 
-function labelH3Duration(node) {
-  const widget = findWidget(node, "H3目标时长");
-  if (widget) widget.label = "目标时长";
-}
-
 function applyNodePolicy(node, { conservative = false } = {}) {
   if (!node || node.__lingzhiMultiFunctionApplying) return;
   node.__lingzhiMultiFunctionApplying = true;
@@ -321,7 +316,6 @@ function applyNodePolicy(node, { conservative = false } = {}) {
     ensureSkillControls(node);
     ensureAdvancedToggle(node);
     ensureApiButton(node);
-    labelH3Duration(node);
 
     const values = widgetValues(node);
     const feature = String(values[FEATURE_WIDGET] || "H3");

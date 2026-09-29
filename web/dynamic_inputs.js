@@ -57,7 +57,7 @@ const LINGZHI_NODE_TYPES = [
     "Lingzhi_Load_Image_Path",
     "Lingzhi_Load_Batch_Images",
     "Lingzhi_Image_Save",
-    "Lingzhi_Fixed_Seed",
+    "Lingzhi_Random_Seed",
     "Lingzhi_LoadImageListFromDir",
     "Lingzhi_Text_Process",
     "Lingzhi_InfinitePromptJoin",

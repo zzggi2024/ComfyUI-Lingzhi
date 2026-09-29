@@ -28,7 +28,8 @@ const NODE_CONFIGS = {
 
 
 	Lingzhi_SD20_Video: { endpoint: "/lingzhi/sd20_video/models", modelWidget: "模型", defaults: ["doubao-seedance-2-0-260128", "doubao-seedance-2-0-fast-260128"] },
-	Lingzhi_Seedance_Video: { endpoint: "/lingzhi/sd20_video/models", modelWidget: "模型", defaults: ["seedance-2.0-standard-t2v", "seedance-2.0-fast-t2v", "seedance-2.0-mini-t2v", "seedance-2.0-standard-i2v", "seedance-2.0-fast-i2v", "seedance-2.0-mini-i2v", "seedance-2.0-standard-multi", "seedance-2.0-fast-multi", "seedance-2.0-mini-multi", "seedance-2.0-global-standard-t2v", "seedance-2.0-global-fast-t2v", "seedance-2.0-global-mini-t2v", "seedance-2.0-global-standard-i2v", "seedance-2.0-global-fast-i2v", "seedance-2.0-global-mini-i2v", "seedance-2.0-global-standard-multi", "seedance-2.0-global-fast-multi", "seedance-2.0-global-mini-multi"] },
+	Lingzhi_Seedance_Video: { endpoint: "/lingzhi/seedance_video/models", modelWidget: "模型", defaults: ["LZ-seedance-2.0-mini-i2v"] },
+	Lingzhi_H3_Video: { endpoint: "/lingzhi/h3_video/models", modelWidget: "模型", defaults: ["LZ-minimax-h3-ow-i2v"] },
 
 };
 

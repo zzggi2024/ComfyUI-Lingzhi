@@ -22,12 +22,12 @@ const H3_WIDGET_NAMES = [
     "返回末帧",
 ];
 const MODEL_DESCRIPTIONS = {
-    "minimax-h3-ow-i2v": "普通图生视频：必须连接 image1 首帧图，提示词可选。",
-    "minimax-h3-ow-r2v": "普通参考生视频：必须连接 1 张 image1 参考图，提示词必填。",
-    "minimax-h3-ow-r2v-fast": "Fast 多图参考生视频：提示词必填，支持 image1 到 image9 共 1～9 张参考图。",
-    "minimax-h3-ow-i2v-fast": "Fast 图生视频：必须且只能连接 image1 首帧图，提示词可选。",
-    "minimax-h3-ow-fl2va-audio-drive-fast": "Fast 首帧音频驱动：必须且只能连接 image1 和 1 段 audio，提示词可选。",
-    "minimax-h3-ow-ref2va-audio-drive-fast": "Fast 参考图音频驱动：必须且只能连接 image1 和 1 段 audio，提示词可选。",
+    "LZ-minimax-h3-ow-i2v": "普通图生视频：必须连接 image1 首帧图，提示词可选。",
+    "LZ-minimax-h3-ow-r2v": "普通参考生视频：必须连接 1 张 image1 参考图，提示词必填。",
+    "LZ-minimax-h3-ow-r2v-fast": "Fast 多图参考生视频：提示词必填，支持 image1 到 image9 共 1～9 张参考图。",
+    "LZ-minimax-h3-ow-i2v-fast": "Fast 图生视频：必须且只能连接 image1 首帧图，提示词可选。",
+    "LZ-minimax-h3-ow-fl2va-audio-drive-fast": "Fast 首帧音频驱动：必须且只能连接 image1 和 1 段 audio，提示词可选。",
+    "LZ-minimax-h3-ow-ref2va-audio-drive-fast": "Fast 参考图音频驱动：必须且只能连接 image1 和 1 段 audio，提示词可选。",
 };
 
 function findWidget(node, name) {
@@ -43,7 +43,7 @@ function isLinked(input) {
 }
 
 function selectedModel(node) {
-    return String(findWidget(node, "模型")?.value || "minimax-h3-ow-i2v").trim();
+    return String(findWidget(node, "模型")?.value || "LZ-minimax-h3-ow-i2v").trim();
 }
 
 function ensureDescriptionPanel(node) {
