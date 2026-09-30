@@ -54,6 +54,9 @@ const MEDIA_SERIES = {
     { prefix: "参考视频", type: "VIDEO", max: 3 },
   ],
   "Music 3": [],
+  "Qwen Image 2.1": [
+    { prefix: "参考图片", type: "IMAGE", max: 10 },
+  ],
 };
 
 export const PERMANENT_EXPLANATION_PANEL = false;

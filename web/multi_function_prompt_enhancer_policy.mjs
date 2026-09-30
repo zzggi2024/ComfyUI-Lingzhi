@@ -39,6 +39,12 @@ const FEATURE_WIDGETS = {
     "质量模式",
     "歌曲结构",
   ],
+  "Qwen Image 2.1": [
+    "输入模式",
+    "尺寸比例",
+    "最大提示词字数",
+    "透明通道",
+  ],
 };
 
 const ADVANCED_WIDGETS = {
@@ -60,6 +66,7 @@ const ACTION_ORDER = [
 
 export function visibleWidgetNames(feature, values = {}) {
   const visible = new Set(COMMON_WIDGETS);
+  if (feature === "Qwen Image 2.1") visible.delete("输出语言");
   for (const name of FEATURE_WIDGETS[feature] || []) visible.add(name);
 
   if (feature === "Music 3") {
