@@ -36,6 +36,10 @@ const DYNAMIC_NODES = [
     "✨ 无限提示词联结",
     "Lingzhi_ImageSplit",
     "🧩 图像拆分",
+    "Lingzhi_ImageCompose",
+    "🧩LZ- 图像组合",
+    "Lingzhi_ImageIndexSwitch",
+    "🔀LZ-图像编号切换",
     "Lingzhi_ZeroOneFloat",
     "0-1浮点",
 ];
@@ -65,6 +69,8 @@ const LINGZHI_NODE_TYPES = [
     "Lingzhi_Text_Process",
     "Lingzhi_InfinitePromptJoin",
     "Lingzhi_ImageSplit",
+    "Lingzhi_ImageCompose",
+    "Lingzhi_ImageIndexSwitch",
     "Lingzhi_ZeroOneFloat",
 ];
 
@@ -130,6 +136,8 @@ const THEME_CONFIG = {
     "Lingzhi_Multi_Prompt_Enhancer": { color: "#7D24A6", bgcolor: "#1E0A29" },
     "✨ 多模型提示词增强器": { color: "#7D24A6", bgcolor: "#1E0A29" },
     "Lingzhi_Doubao_Image": { color: "#7D24A6", bgcolor: "#1E0A29" },
+    "Lingzhi_ImageCompose": { color: "#7D24A6", bgcolor: "#1E0A29" },
+    "Lingzhi_ImageIndexSwitch": { color: "#7D24A6", bgcolor: "#1E0A29" },
 
 
     "Lingzhi_Media_Reverse_Prompt": { color: "#7D24A6", bgcolor: "#1E0A29" },
@@ -360,6 +368,21 @@ function getDynamicInputSpec(node) {
             slotType: "IMAGE",
             minInputs: 1,
             maxInputs: 9,
+        };
+    }
+    if (t === "Lingzhi_ImageCompose" || (typeof title === "string" && title.includes("图像组合"))) {
+        return {
+            prefix: "image_",
+            slotType: "IMAGE",
+            minInputs: 1,
+            maxInputs: 64,
+        };
+    }
+    if (t === "Lingzhi_ImageIndexSwitch" || (typeof title === "string" && title.includes("图像编号切换"))) {
+        return {
+            prefix: "image_",
+            slotType: "IMAGE",
+            minInputs: 1,
         };
     }
     if (k.includes("video_edit") || k.includes("视频编辑")) {

@@ -1,7 +1,8 @@
 import { app } from "/scripts/app.js";
 import { api } from "/scripts/api.js";
 
-const NODE_CLASS_NAMES = new Set(["Lingzhi_Loop_Trigger", "LZ-Lingzhi_Loop_Trigger"]);
+const LOOP_TRIGGER_CLASS_NAMES = new Set(["Lingzhi_Loop_Trigger", "LZ-Lingzhi_Loop_Trigger"]);
+const LOOP_COUNT_CLASS_NAMES = new Set(["Lingzhi_Loop_Count", "LZ-Lingzhi_Loop_Count"]);
 const watchedNodes = new Map();
 const stoppedNodes = new Set();
 let pollTimer = null;
@@ -146,12 +147,26 @@ function showMessage(message, duration = 1800) {
 	alert(message);
 }
 
+function ensureLoopButton(node, name, label, tooltip, callback) {
+	const existing = findWidget(node, name);
+	if (existing) {
+		existing.label = label;
+		existing.serialize = false;
+		existing.callback = callback;
+		return;
+	}
+	const button = node.addWidget("button", name, name, callback);
+	button.name = name;
+	button.label = label;
+	button.serialize = false;
+	button.tooltip = tooltip;
+}
+
 async function stopLoopTasks(node) {
 	const nodeId = String(node?.id ?? "");
 	if (nodeId) {
 		stoppedNodes.add(nodeId);
 	}
-	setWidgetValue(node, "mode", false);
 	setWidgetValue(node, "当前执行编号", 0);
 	try {
 		await api.fetchApi("/queue", {
@@ -294,7 +309,7 @@ function startPolling() {
 	}, 2000);
 }
 
-async function queueLoopPrompt(nodeId) {
+async function queueLoopPrompt(nodeId, delayMs) {
 	if (nodeId && stoppedNodes.has(nodeId)) {
 		return;
 	}
@@ -308,7 +323,7 @@ async function queueLoopPrompt(nodeId) {
 				return;
 			}
 			try {
-				await sleep(800);
+				await sleep(delayMs);
 				if (nodeId && stoppedNodes.has(nodeId)) {
 					return;
 				}
@@ -346,7 +361,8 @@ function bindLoopTriggerEvents() {
 		api.addEventListener("lingzhi.loop_trigger.add_queue", async (evt) => {
 			const detail = evt?.detail ?? null;
 			const nodeId = detail?.node_id ? String(detail.node_id) : "";
-			await queueLoopPrompt(nodeId);
+			const delayMs = Number(detail?.delay_ms ?? 0);
+			await queueLoopPrompt(nodeId, delayMs);
 		});
 		queueListenerBound = true;
 	}
@@ -382,45 +398,16 @@ function enhanceLoopTriggerNode(node) {
 		setWidgetHiddenState(internalStateWidget, false);
 	}
 
-	const existingInitButton = findWidget(node, "初始化");
-	if (!existingInitButton) {
-		const initButton = node.addWidget("button", "初始化", "Init", () => {
-			resetLoopStoppedState(node);
-			syncNodeFolderState(node, { fromInit: true }).catch((error) => {
-				showMessage(String(error?.message || error));
-			});
+	ensureLoopButton(node, "初始化", "⟳ 初始化", "首次点击后读取文件夹图片总数，并同步强制循环数默认值", () => {
+		resetLoopStoppedState(node);
+		syncNodeFolderState(node, { fromInit: true }).catch((error) => {
+			showMessage(String(error?.message || error));
 		});
-		initButton.name = "初始化";
-		initButton.label = "⟳ 初始化";
-		initButton.serialize = false;
-		initButton.tooltip = "首次点击后读取文件夹图片总数，并同步强制循环数默认值";
-	} else {
-		existingInitButton.label = "⟳ 初始化";
-		existingInitButton.serialize = false;
-		existingInitButton.callback = () => {
-			resetLoopStoppedState(node);
-			syncNodeFolderState(node, { fromInit: true }).catch((error) => {
-				showMessage(String(error?.message || error));
-			});
-		};
-	}
+	});
 
-	const existingStopButton = findWidget(node, "停止任务");
-	if (!existingStopButton) {
-		const stopButton = node.addWidget("button", "停止任务", "Stop", () => {
-			stopLoopTasks(node);
-		});
-		stopButton.name = "停止任务";
-		stopButton.label = "■ 停止任务";
-		stopButton.serialize = false;
-		stopButton.tooltip = "停止当前循环触发，并清空未执行的队列任务";
-	} else {
-		existingStopButton.label = "■ 停止任务";
-		existingStopButton.serialize = false;
-		existingStopButton.callback = () => {
-			stopLoopTasks(node);
-		};
-	}
+	ensureLoopButton(node, "停止任务", "■ 停止任务", "停止当前循环触发，并清空未执行的队列任务", () => {
+		stopLoopTasks(node);
+	});
 
 	if (pathWidget) {
 		const originalPathCallback = pathWidget.callback;
@@ -461,6 +448,40 @@ function enhanceLoopTriggerNode(node) {
 	node.setDirtyCanvas?.(true, true);
 }
 
+function enhanceLoopCountNode(node) {
+	if (node.__lingzhiLoopCountEnhanced) {
+		return;
+	}
+	node.__lingzhiLoopCountEnhanced = true;
+
+	const indexWidget = findWidget(node, "当前执行编号");
+	if (indexWidget) {
+		indexWidget.options = indexWidget.options || {};
+		indexWidget.options.readOnly = true;
+	}
+
+	ensureLoopButton(node, "初始化", "⟳ 初始化", "重置执行编号为 0，并解除停止状态", () => {
+		resetLoopStoppedState(node);
+		setWidgetValue(node, "当前执行编号", 0);
+		showMessage("已重置执行编号");
+	});
+
+	ensureLoopButton(node, "停止任务", "■ 停止任务", "停止当前循环，并清空未执行的队列任务", () => {
+		stopLoopTasks(node);
+	});
+
+	const originalOnRemoved = node.onRemoved;
+	node.onRemoved = function (...args) {
+		stoppedNodes.delete(String(node.id));
+		if (typeof originalOnRemoved === "function") {
+			return originalOnRemoved.apply(this, args);
+		}
+		return undefined;
+	};
+
+	node.setDirtyCanvas?.(true, true);
+}
+
 app.registerExtension({
 	name: "Lingzhi.LoopTrigger",
 	async setup() {
@@ -468,14 +489,20 @@ app.registerExtension({
 		startPolling();
 	},
 	async beforeRegisterNodeDef(nodeType, nodeData) {
-		if (!NODE_CLASS_NAMES.has(nodeData?.name)) {
+		const isLoopTriggerNode = LOOP_TRIGGER_CLASS_NAMES.has(nodeData?.name);
+		const isLoopCountNode = LOOP_COUNT_CLASS_NAMES.has(nodeData?.name);
+		if (!isLoopTriggerNode && !isLoopCountNode) {
 			return;
 		}
 
 		const originalOnNodeCreated = nodeType.prototype.onNodeCreated;
 		nodeType.prototype.onNodeCreated = function () {
 			const result = originalOnNodeCreated ? originalOnNodeCreated.apply(this, arguments) : undefined;
-			enhanceLoopTriggerNode(this);
+			if (isLoopTriggerNode) {
+				enhanceLoopTriggerNode(this);
+			} else {
+				enhanceLoopCountNode(this);
+			}
 			return result;
 		};
 	},
