@@ -33,24 +33,6 @@ function updateComboValues(widget, values) {
 	}
 }
 
-function installModelCombo(node, textWidget) {
-	const index = node.widgets.indexOf(textWidget);
-	const combo = node.addWidget(
-		"combo",
-		MODEL_WIDGET,
-		String(textWidget.value || ""),
-		() => node.setDirtyCanvas?.(true, true),
-		{ values: [String(textWidget.value || "")] },
-	);
-	combo.name = MODEL_WIDGET;
-	combo.label = MODEL_WIDGET;
-	combo.serialize = true;
-	node.widgets.splice(node.widgets.indexOf(combo), 1);
-	node.widgets.splice(index, 0, combo);
-	node.widgets.splice(node.widgets.indexOf(textWidget), 1);
-	return combo;
-}
-
 async function refreshModels(node, options = {}) {
 	const combo = findWidget(node, MODEL_WIDGET);
 	if (!combo || node.__lingzhiLocalModelsFetching) {
@@ -91,13 +73,12 @@ function setupLocalModels(node) {
 	if (!node || node.__lingzhiLocalModelsReady) {
 		return;
 	}
-	const textWidget = findWidget(node, MODEL_WIDGET);
-	if (!textWidget) {
+	const combo = findWidget(node, MODEL_WIDGET);
+	if (!combo) {
 		return;
 	}
 
 	node.__lingzhiLocalModelsReady = true;
-	installModelCombo(node, textWidget);
 
 	const button = node.addWidget("button", FETCH_BUTTON, FETCH_BUTTON, () => {
 		refreshModels(node);
