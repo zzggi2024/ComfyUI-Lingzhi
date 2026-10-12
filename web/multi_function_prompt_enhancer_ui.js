@@ -113,7 +113,7 @@ function setWidgetVisible(widget, visible) {
     else delete widget.computeSize;
     widget.hidden = false;
   } else {
-    widget.type = "converted-widget";
+    widget.type = "hidden";
     widget.computeSize = () => [0, -4];
     widget.hidden = true;
   }
@@ -305,6 +305,20 @@ function setSkillRefreshStatus(node, message) {
   if (!widget) return;
   widget.value = String(message || "");
   node.__lingzhiMultiFunctionSkillStatusVisible = Boolean(widget.value);
+}
+
+function dropLegacyWidgetInputs(node) {
+  if (!Array.isArray(node?.inputs)) return false;
+  let changed = false;
+  for (let index = node.inputs.length - 1; index >= 0; index -= 1) {
+    const input = node.inputs[index];
+    // 旧版本把“隐藏参数”误标成了已转换的输入端口，这里清掉未连线的残留端口，让参数仍按控件提交取值。
+    if (input?.widget && !inputLinked(input)) {
+      node.removeInput?.(index);
+      changed = true;
+    }
+  }
+  return changed;
 }
 
 function applyNodePolicy(node, { conservative = false } = {}) {
@@ -504,6 +518,7 @@ function installCallbacks(node) {
 
 function initialize(node, { conservative = false } = {}) {
   if (!isTarget(node)) return;
+  dropLegacyWidgetInputs(node);
   restoreModelLock(node);
   applyNodePolicy(node, { conservative });
   installCallbacks(node);
