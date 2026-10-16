@@ -1,16 +1,21 @@
 import { app } from "/scripts/app.js";
 import { api } from "/scripts/api.js";
 
-const NODE_TYPES = new Set([
-	"Lingzhi_Local_LLM_App",
-	"LZ-Lingzhi_Local_LLM_App",
-]);
+const NODE_TYPES = new Set(["Lingzhi_Local_LLM_App"]);
 const MODEL_WIDGET = "模型选择";
 const FETCH_BUTTON = "获取模型列表";
 const MODEL_LIST_ENDPOINT = "/lingzhi/local_llm/models";
 
 function findWidget(node, name) {
 	return node.widgets?.find((widget) => widget.name === name);
+}
+
+function normalizeNodeType(name) {
+	return String(name || "").replace(/^LZ-/, "");
+}
+
+function isLocalModelNode(node) {
+	return NODE_TYPES.has(normalizeNodeType(node?.comfyClass || node?.type));
 }
 
 function showMessage(message, duration = 2400) {
@@ -70,7 +75,7 @@ async function refreshModels(node, options = {}) {
 }
 
 function setupLocalModels(node) {
-	if (!node || node.__lingzhiLocalModelsReady) {
+	if (!isLocalModelNode(node) || node.__lingzhiLocalModelsReady) {
 		return;
 	}
 	const combo = findWidget(node, MODEL_WIDGET);
@@ -107,7 +112,7 @@ app.registerExtension({
 		window.setInterval(scan, 1000);
 	},
 	async beforeRegisterNodeDef(nodeType, nodeData) {
-		if (!NODE_TYPES.has(nodeData.name)) {
+		if (!NODE_TYPES.has(normalizeNodeType(nodeData.name))) {
 			return;
 		}
 
