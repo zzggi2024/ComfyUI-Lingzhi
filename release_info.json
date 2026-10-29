@@ -1,0 +1,12 @@
+{
+  "plugin_name": "ComfyUI-Lingzhi",
+  "github_url": "https://github.com/zzggi2024/comfyui-lingzhi",
+  "release_time": "2026-10-29 21:55:28",
+  "auth_scope_type": "ACCOUNT",
+  "drm_mode": "strong",
+  "release_id": "9363f174328c407f83986fa4cd8981dc",
+  "release_version": "20261029215511",
+  "package_hash": "cee3de32590be65c2f4e0c8a35cb7b1295e58b5b1c56966eadd658bc74a035bc",
+  "server_url": "https://zhijia88.cn/",
+  "signing_key_id": "cea89f49ac597fda"
+}
