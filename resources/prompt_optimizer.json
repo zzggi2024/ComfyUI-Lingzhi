@@ -1,0 +1,46 @@
+{
+  "sampling_mode_options": [
+    "启用",
+    "关闭"
+  ],
+  "mtp_options": [
+    "自动",
+    "关闭",
+    "2",
+    "3",
+    "4",
+    "5",
+    "树2s1",
+    "树2s2",
+    "树3s1",
+    "树4s1m8"
+  ],
+  "mtp_values": {
+    "自动": "auto",
+    "关闭": "off",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "树2s1": "tree2s1",
+    "树2s2": "tree2s2",
+    "树3s1": "tree3s1",
+    "树4s1m8": "tree4s1m8"
+  },
+  "rgba_transparency_prompt": "Transparent output is required. Describe the finished image as an RGBA image with an alpha channel and a transparent background.",
+  "defaults": {
+    "max_length": 5120,
+    "sampling_mode": "关闭",
+    "temperature": 0.7,
+    "top_k": 64,
+    "top_p": 0.95,
+    "min_p": 0.05,
+    "repetition_penalty": 1.05,
+    "presence_penalty": 0.0,
+    "thinking": false,
+    "use_default_template": true,
+    "mtp": "自动",
+    "ratio": "空",
+    "rgba": false
+  }
+}
